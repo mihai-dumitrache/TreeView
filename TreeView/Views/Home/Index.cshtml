@@ -1,0 +1,86 @@
+﻿@using TreeView.Services
+@model TreeView.Models.TasksList
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<script src="https://kit.fontawesome.com/d5cb6dbe34.js" crossorigin="anonymous"></script>
+
+<div id="addTask">
+    <div id="newTask">
+        <label><b>Add new task</b></label><br />
+        <input type="text" class="form-control" id="taskTitle" name="taskTitle" style="position:relative;width:300px;display:inline-block" placeholder="Insert Task Title">  <i class="fa-solid fa-circle-plus fa-xl" style="display:inline-block;position:relative;" type="button" onclick="addTask()"></i>
+    </div>
+</div>
+
+@for (int taskIndex= 0;taskIndex < Model.Tasks.Count();taskIndex++)
+{
+    <div id=@("task"+@Model.Tasks[taskIndex].Id)>
+        <i class="fa-solid fa-caret-right" id=@("expandButton"+Model.Tasks[taskIndex].Id) onclick="expandButton('@Model.Tasks[taskIndex].Id')" style="position:relative;top:10px;"></i><label style="position:relative;top:10px;left:7px;">@Model.Tasks[taskIndex].TaskTitle</label><br />
+    </div>
+}
+
+<script>
+    function addTask(){
+        var taskTitle=document.getElementById("taskTitle").value;
+        if (taskTitle!=null)
+        {
+            $.ajax({
+                url: '@Url.Action("AddTask", "App")',
+                type: "Get",
+                data: {taskTitle: taskTitle},
+                dataType: 'json',
+                async: false,
+                success: function (data) {
+                    
+                },
+                failure: function (errMsg) {
+                alert(errMsg);
+                }
+            });
+        }
+    }
+</script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script>
+    function expandButton(elem){
+        debugger;
+        document.getElementById("expandButton"+elem).className="fa-solid fa-caret-down"
+        document.getElementById("expandButton"+elem).id="collapseButton"+elem;
+        document.getElementById("collapseButton"+elem).setAttribute("onclick","collapseButton("+elem+")");
+        const stepsTitle=[];
+        $.ajax({
+                url: '@Url.Action("GetAllStepsByTaskId","App")',
+                type: "Get",
+                data: {taskId: elem},
+                dataType: 'text',
+                async: false,
+                success: function (data) {
+
+                    alert(data);
+                    //$.each(data,function(index){
+                    //    stepsTitle[index]=data[index].taskTitle;
+                    //    })
+                },
+                failure: function (errMsg) {
+                alert(errMsg);
+                }
+            });
+        for (var stepIndex=1;stepIndex<=stepsTitle.length;stepIndex++)
+        {
+            var labelTitle=stepIndex;
+            var node=document.createElement('div');
+            node.id='step'+stepIndex;
+            node.innerHTML = "<label>"+stepsTitle[stepIndex-1]+"</label>"
+            document.getElementById('task'+elem).appendChild(node); 
+        };
+    }
+    function collapseButton(elem){
+        document.getElementById("collapseButton"+elem).className="fa-solid fa-caret-right"
+        document.getElementById("collapseButton"+elem).id="expandButton"+elem;
+        document.getElementById("expandButton"+elem).setAttribute("onclick","expandButton("+elem+")");
+    }
+</script>
