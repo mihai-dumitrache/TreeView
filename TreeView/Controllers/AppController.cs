@@ -22,7 +22,7 @@ namespace TreeView.Controllers
         {
             _appService.AddTask(taskTitle);
             List<Task> tasksList =_appService.GetAllTasks();
-            return View("Views/Home/Index.cshtml",tasksList);
+            return RedirectToAction("Index","Home");
         }
 
         public List<Step> GetAllStepsByTaskId(int taskId)
